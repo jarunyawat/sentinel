@@ -22,8 +22,17 @@ def generate_launch_description():
         arguments=['serial', '--dev', '/dev/ttyACM0', '-b', '1500000'],
     )
 
+    lidar_launch = IncludeLaunchDescription(
+        PathJoinSubstitution([
+            FindPackageShare('sllidar_ros2'),
+            'launch',
+            'sllidar_c1_launch.py'
+        ])
+    )
+
     ld = LaunchDescription()
     ld.add_action(description_launch)
     ld.add_action(micro_ros_node)
+    ld.add_action(lidar_launch)
 
     return ld
