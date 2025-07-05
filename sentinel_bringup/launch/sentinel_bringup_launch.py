@@ -55,7 +55,7 @@ def generate_launch_description():
             ('/tf', 'tf'),
             ('/tf_static', 'tf_static'),
         ],
-        parameters=[params_file, {'use_sim_time': "false"}]
+        parameters=[params_file, {'use_sim_time': False}]
     )
 
     ld = LaunchDescription()

@@ -28,7 +28,7 @@ from nav2_common.launch import ReplaceString
 
 def generate_launch_description():
     # Get the launch directory
-    bringup_dir = get_package_share_directory('ecar_nav2')
+    bringup_dir = get_package_share_directory('sentinel_nav2')
 
     # Create the launch configuration variables
     namespace = LaunchConfiguration('namespace')
@@ -49,7 +49,7 @@ def generate_launch_description():
 
     declare_rviz_config_file_cmd = DeclareLaunchArgument(
         'rviz_config',
-        default_value=os.path.join(bringup_dir, 'config', 'ecar_view.rviz'),
+        default_value=os.path.join(bringup_dir, 'config', 'sentinel_view.rviz'),
         description='Full path to the RVIZ config file to use')
 
     # Launch rviz

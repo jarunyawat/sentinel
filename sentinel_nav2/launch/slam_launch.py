@@ -39,7 +39,7 @@ def generate_launch_description():
     lifecycle_nodes = ['map_saver']
 
     # Getting directories and launch-files
-    bringup_dir = get_package_share_directory('ecar_nav2')
+    bringup_dir = get_package_share_directory('sentinel_nav2')
     slam_toolbox_dir = get_package_share_directory('slam_toolbox')
     slam_launch_file = os.path.join(slam_toolbox_dir, 'launch', 'online_async_launch.py')
 
@@ -63,7 +63,7 @@ def generate_launch_description():
 
     declare_params_file_cmd = DeclareLaunchArgument(
         'params_file',
-        default_value=os.path.join(bringup_dir, 'config', 'ecar_nav2_params.yaml'),
+        default_value=os.path.join(bringup_dir, 'config', 'sentinel_slam_params.yaml'),
         description='Full path to the ROS2 parameters file to use for all launched nodes')
 
     declare_use_sim_time_cmd = DeclareLaunchArgument(

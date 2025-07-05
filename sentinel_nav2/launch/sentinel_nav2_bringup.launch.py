@@ -11,8 +11,8 @@ from launch.conditions import UnlessCondition
 
 def generate_launch_description():
 
-    ecar_nav2_pkg = get_package_share_directory('sentinel_nav2')
-    launch_dir = os.path.join(ecar_nav2_pkg, 'launch')
+    sentinel_nav2_pkg = get_package_share_directory('sentinel_nav2')
+    launch_dir = os.path.join(sentinel_nav2_pkg, 'launch')
 
     # Create the launch configuration variables
     namespace = LaunchConfiguration('namespace')
@@ -43,8 +43,7 @@ def generate_launch_description():
 
     declare_map_yaml_cmd = DeclareLaunchArgument(
         'map',
-        # default_value=os.path.join(get_package_share_directory('ecar_simulation'), 'maps', '005', 'map.yaml'),
-        default_value=os.path.join(ecar_nav2_pkg, "map", "map_20_rotate.yaml"),
+        default_value=os.path.join(sentinel_nav2_pkg, 'config', 'sentinel_nav2_params.yaml'),
         description='Full path to map yaml file to load'
     )
 
@@ -56,7 +55,7 @@ def generate_launch_description():
 
     declare_params_file_cmd = DeclareLaunchArgument(
         'params_file',
-        default_value=os.path.join(ecar_nav2_pkg, 'config', 'ecar_nav2_params.yaml'),
+        default_value=os.path.join(sentinel_nav2_pkg, 'map', 'home.yaml'),
         description='Full path to the ROS2 parameters file to use for all launched nodes',
     )
 
@@ -128,7 +127,7 @@ def generate_launch_description():
                 condition=UnlessCondition(slam),
                 launch_arguments={
                     'namespace': namespace,
-                    'mask': os.path.join(ecar_nav2_pkg, "map", "map_20_keepout.yaml"),
+                    'mask': os.path.join(sentinel_nav2_pkg, "map", "map_20_keepout.yaml"),
                     'use_sim_time': use_sim_time,
                     'params_file': params_file,
                     'autostart': autostart,
@@ -143,7 +142,7 @@ def generate_launch_description():
                 condition=UnlessCondition(slam),
                 launch_arguments={
                     'namespace': namespace,
-                    'mask': os.path.join(ecar_nav2_pkg, "map", "map_20_speed_limit.yaml"),
+                    'mask': os.path.join(sentinel_nav2_pkg, "map", "map_20_speed_limit.yaml"),
                     'use_sim_time': use_sim_time,
                     'params_file': params_file,
                     'autostart': autostart,
@@ -165,8 +164,8 @@ def generate_launch_description():
     ld.add_action(declare_log_level_cmd)
     # ld.add_action(declare_use_localization_cmd)
     ld.add_action(nav2_bringup_launch)
-    ld.add_action(keepout_filter_launch)
-    ld.add_action(speed_limit_filter_launch)
+    # ld.add_action(keepout_filter_launch)
+    # ld.add_action(speed_limit_filter_launch)
     ld.add_action(collision_monitor_launch)
     
     return ld
