@@ -7,9 +7,20 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
-# uncomment the following section in order to fill in
-# further dependencies manually.
-# find_package(<dependency> REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(geometry_msgs REQUIRED)
+find_package(Boost REQUIRED COMPONENTS system)
+
+add_executable(tcp_cmd_vel_server src/tcp_cmd_vel_server.cpp)
+
+ament_target_dependencies(tcp_cmd_vel_server
+  rclcpp
+  geometry_msgs
+)
+
+target_link_libraries(tcp_cmd_vel_server
+  Boost::system
+)
 
 # Install launch files
 install(
@@ -20,6 +31,7 @@ install(
 # Install nodes
 install(
   TARGETS
+  tcp_cmd_vel_server
   DESTINATION lib/${PROJECT_NAME}
 )
 
