@@ -3,14 +3,22 @@
 
 #include <boost/asio.hpp>
 #include <thread>
-#include <sstream>
+#include <iostream>
+#include <memory>
+
+// JSON
+#include <nlohmann/json.hpp>
 
 using boost::asio::ip::tcp;
+using json = nlohmann::json;
 
 class TcpCmdVelServer : public rclcpp::Node
 {
 public:
-    TcpCmdVelServer() : Node("tcp_cmd_vel_server"), acceptor_(io_context_, tcp::endpoint(tcp::v4(), 5000))
+    TcpCmdVelServer()
+    : Node("tcp_cmd_vel_server"),
+      io_context_(),
+      acceptor_(io_context_, tcp::endpoint(tcp::v4(), 5000))
     {
         cmd_pub_ = this->create_publisher<geometry_msgs::msg::Twist>(
             "cmd_vel", 10);
@@ -24,12 +32,24 @@ public:
 
     ~TcpCmdVelServer()
     {
-        io_context_.stop();
+        RCLCPP_INFO(this->get_logger(), "Shutting down TCP server...");
+
+        try
+        {
+            acceptor_.close();
+            io_context_.stop();
+        }
+        catch (...) {}
+
         if (server_thread_.joinable())
             server_thread_.join();
+
+        RCLCPP_INFO(this->get_logger(), "TCP Server shutdown complete");
     }
 
 private:
+
+    // ================= SERVER LOOP =================
     void run_server()
     {
         while (rclcpp::ok())
@@ -37,7 +57,11 @@ private:
             try
             {
                 tcp::socket socket(io_context_);
+
+                RCLCPP_INFO(this->get_logger(), "Waiting for client...");
                 acceptor_.accept(socket);
+
+                if (!rclcpp::ok()) break;
 
                 RCLCPP_INFO(this->get_logger(), "Client connected");
 
@@ -45,12 +69,17 @@ private:
             }
             catch (std::exception &e)
             {
+                if (!rclcpp::ok()) break;
+
                 RCLCPP_ERROR(this->get_logger(),
-                    "Server error: %s", e.what());
+                    "Accept error: %s", e.what());
             }
         }
+
+        RCLCPP_INFO(this->get_logger(), "Server thread exited");
     }
 
+    // ================= CLIENT LOOP =================
     void handle_client(tcp::socket socket)
     {
         try
@@ -59,11 +88,14 @@ private:
 
             while (rclcpp::ok())
             {
-                boost::asio::read_until(socket, buf, "\n");
+                // Read until CRLF
+                boost::asio::read_until(socket, buf, "\r\n");
 
                 std::istream is(&buf);
                 std::string line;
                 std::getline(is, line);
+
+                if (line.empty()) continue;
 
                 parse_and_publish(line);
             }
@@ -74,21 +106,29 @@ private:
         }
     }
 
+    // ================= JSON PARSE =================
     void parse_and_publish(const std::string &msg)
     {
-        // Expect format: "linear_x angular_z"
-        std::stringstream ss(msg);
+        try
+        {
+            auto j = json::parse(msg);
 
-        double linear = 0.0;
-        double angular = 0.0;
+            double vx = j.value("vx", 0.0);
+            double vy = j.value("vy", 0.0);
+            double wz = j.value("wz", 0.0);
 
-        ss >> linear >> angular;
+            geometry_msgs::msg::Twist twist;
+            twist.linear.x = vx;
+            twist.linear.y = vy;
+            twist.angular.z = wz;
 
-        geometry_msgs::msg::Twist twist;
-        twist.linear.x = linear;
-        twist.angular.z = angular;
-
-        cmd_pub_->publish(twist);
+            cmd_pub_->publish(twist);
+        }
+        catch (std::exception &e)
+        {
+            RCLCPP_WARN(this->get_logger(),
+                "JSON parse error: %s", e.what());
+        }
     }
 
 private:
@@ -100,10 +140,15 @@ private:
     std::thread server_thread_;
 };
 
+// ================= MAIN =================
 int main(int argc, char **argv)
 {
     rclcpp::init(argc, argv);
-    rclcpp::spin(std::make_shared<TcpCmdVelServer>());
+
+    auto node = std::make_shared<TcpCmdVelServer>();
+
+    rclcpp::spin(node);
+
     rclcpp::shutdown();
     return 0;
 }
