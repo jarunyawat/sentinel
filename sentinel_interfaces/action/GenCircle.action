@@ -1,0 +1,6 @@
+float64 radius
+float64 theta
+bool direction
+---
+nav_msgs/Path path
+---
