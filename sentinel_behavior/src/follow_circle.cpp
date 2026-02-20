@@ -43,6 +43,8 @@ void FollowCircle::handle_accepted(const std::shared_ptr<GoalHandleNavCircle> go
 }
 
 void FollowCircle::execute(const std::shared_ptr<GoalHandleNavCircle> goal_handle){
+    const auto goal = goal_handle->get_goal();
+    float speed = goal->speed;
     rclcpp::Rate loop_rate(10.0);
     Eigen::Matrix2d R;
     while(true){
@@ -101,8 +103,8 @@ void FollowCircle::execute(const std::shared_ptr<GoalHandleNavCircle> goal_handl
             double cmd_vel = delta_vec * 3.0;
             double normalize_delta_x = delta_x / delta_vec;
             double normalize_delta_y = delta_y / delta_vec;
-            if(cmd_vel > 0.3){
-                cmd_vel = 0.3;
+            if(cmd_vel > abs(speed)){
+                cmd_vel = abs(speed);
             }
 
             double vel_x_body = cmd_vel * normalize_delta_x;
