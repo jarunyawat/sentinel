@@ -58,11 +58,23 @@ def generate_launch_description():
         parameters=[params_file, {'use_sim_time': False}]
     )
 
+    joystick = Node(
+        package='sentinel_bringup',
+        executable='tcp_cmd_vel_server',
+    )
+
+    camera = Node(
+        package='sentinel_bringup',
+        executable='camera_node',
+    )
+
     ld = LaunchDescription()
     ld.add_action(declare_params_file_cmd)
     ld.add_action(description_launch)
     ld.add_action(micro_ros_node)
     ld.add_action(lidar_launch)
     ld.add_action(robot_localization)
+    ld.add_action(joystick)
+    ld.add_action(camera)
 
     return ld

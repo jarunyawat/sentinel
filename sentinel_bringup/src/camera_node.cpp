@@ -1,6 +1,6 @@
 #include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/msg/image.hpp>
-#include <cv_bridge/cv_bridge.h>
+#include <cv_bridge/cv_bridge.hpp>
 #include <image_transport/image_transport.hpp>
 #include <opencv2/opencv.hpp>
 
@@ -14,7 +14,7 @@ public:
         RCLCPP_INFO(this->get_logger(), "Starting camera node...");
 
         // Open camera with V4L2 backend
-        cap_.open(0, cv::CAP_V4L2);
+        cap_.open("/dev/video0", cv::CAP_V4L2);
 
         if (!cap_.isOpened())
         {
