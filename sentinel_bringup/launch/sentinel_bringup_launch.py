@@ -68,6 +68,11 @@ def generate_launch_description():
         executable='camera_node',
     )
 
+    webRTC = Node(
+        package='sentinel_network',
+        executable='webcamRTC_transport.py',
+    )
+
     ld = LaunchDescription()
     ld.add_action(declare_params_file_cmd)
     ld.add_action(description_launch)
@@ -76,5 +81,6 @@ def generate_launch_description():
     ld.add_action(robot_localization)
     ld.add_action(joystick)
     ld.add_action(camera)
+    ld.add_action(webRTC)
 
     return ld
