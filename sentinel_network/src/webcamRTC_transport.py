@@ -76,7 +76,7 @@ class CameraTrack(VideoStreamTrack):
             ret, frame = self.cap.read()
             if not ret:
                 return
-            frame = cv2.resize(frame, (640, 480))
+        frame = cv2.resize(frame, (640, 480))
 
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         video_frame = VideoFrame.from_ndarray(frame, format="rgb24")
